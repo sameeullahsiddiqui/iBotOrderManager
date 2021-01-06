@@ -1,0 +1,33 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "StockAlert",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Stock",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "Date",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "StockComments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "stockId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

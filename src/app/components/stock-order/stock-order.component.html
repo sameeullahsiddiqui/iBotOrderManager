@@ -1,0 +1,308 @@
+<p-toast></p-toast>
+
+<div class="card" *ngIf="!userName">
+  <label for="userName">Please enter zerodha user id for order management.</label>
+  <form [formGroup]="this.formUserInput">
+    <div class="p-field p-col-4">
+      <label for="userName">Zerodha User name:</label>
+      <input type="text" pInputText id="userName" formControlName="userName" required />
+      <small class="p-invalid" *ngIf="submitted && !userName" >Zerodha username is required.</small>
+    </div>
+  <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+      (click)="saveUserId()"></button>
+</form>
+</div>
+
+<div class="card" *ngIf="userName">
+  <p-toolbar styleClass="p-mr-2">
+    <ng-template pTemplate="right">
+      <button
+        pButton
+        pRipple
+        label="New"
+        icon="pi pi-plus"
+        class="p-button-success p-mr-2"
+        (click)="openNew()"
+      ></button>
+      <!--
+        <button
+        pButton
+        pRipple
+        label="Delete"
+        icon="pi pi-trash"
+        class="p-button-danger"
+        (click)="deleteSelectedOrders()"
+        [disabled]="!selectedOrders || !selectedOrders.length"
+      ></button>
+     -->
+    </ng-template>
+
+    <!--
+      <ng-template pTemplate="left">
+      <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="p-mr-2 p-d-inline-block"
+      ></p-fileUpload>
+      <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"
+      ></button>
+    </ng-template>
+     -->
+  </p-toolbar>
+
+  <p-table #dt [value]="orders" [rows]="10" [paginator]="true"
+          [globalFilterFields]="['symbol', 'orderType', 'status']"
+          [(selection)]="selectedOrders" [rowHover]="true" dataKey="id"
+           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [showCurrentPageReport]="true"
+          >
+    <ng-template pTemplate="caption">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        <h5 class="p-m-0">Manage Orders</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <!-- <input pInputText type="text" (input)="dt.filterGlobal($event.targetPrice.value, 'contains')" placeholder="Search..." /> -->
+        </span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th pSortableColumn="orderType">
+          Order Type <p-sortIcon field="orderType"></p-sortIcon>
+        </th>
+        <th pSortableColumn="Type">
+          Type <p-sortIcon field="Type"></p-sortIcon>
+        </th>
+        <th pSortableColumn="symbol">
+          Stock Name <p-sortIcon field="symbol"></p-sortIcon>
+        </th>
+        <th pSortableColumn="quantity">
+          Quantity <p-sortIcon field="quantity"></p-sortIcon>
+        </th>
+        <th pSortableColumn="orderPrice">
+          Buy/Sell Price <p-sortIcon field="orderPrice"></p-sortIcon>
+        </th>
+        <th pSortableColumn="currentPrice">
+          Current Price <p-sortIcon field="currentPrice"></p-sortIcon>
+        </th>
+        <th pSortableColumn="targetPrice">
+          Target Price <p-sortIcon field="targetPrice"></p-sortIcon>
+        </th>
+        <th pSortableColumn="stoplossPrice">
+          Stoploss <p-sortIcon field="stoplossPrice"></p-sortIcon>
+        </th>
+        <th pSortableColumn="profit">
+          Profit <p-sortIcon field="profit"></p-sortIcon>
+        </th>
+        <th pSortableColumn="status">
+          Status <p-sortIcon field="status"></p-sortIcon>
+        </th>
+        <!-- <th pSortableColumn="onHold">
+          On Hold <p-sortIcon field="onHold"></p-sortIcon>
+        </th> -->
+        <!-- <th>Image</th> -->
+        <!-- <th pSortableColumn="rating">Reviews <p-sortIcon field="rating"></p-sortIcon></th> -->
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-order>
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="order"></p-tableCheckbox>
+        </td>
+        <td [class]=" 'order-badge status-' + (order.status ? order.orderType.toLowerCase() : '')">
+          {{ order.orderType }}</td>
+          <td [class]=" 'order-badge status-' + (order.status ? order.transactionType.toLowerCase() : '')">
+            {{ order.transactionType }}</td>
+          <td>{{ order.symbol }}</td>
+        <td>{{ order.quantity }}</td>
+        <td>{{ order.orderPrice | currency: "INR" }}</td>
+        <td>{{ order.currentPrice | currency: "INR" }}</td>
+        <td>{{ order.targetPrice | currency: "INR" }}</td>
+        <td>{{ order.stoplossPrice | currency: "INR" }}</td>
+        <!-- <td>{{ order.profit }}%</td> -->
+        <td><p-knob
+          valueTemplate="{{order.profit}}%"
+          [readonly]="true"
+          [min]="-20" [max]="20"
+          [size]="50"
+          valueColor="{{order.profit < 0 ? 'Red': order.profit > 0 ? 'Green' : 'MediumTurquoise'}}"
+          >
+        </p-knob>
+        </td>
+        <td>
+          <span
+            [class]=" 'order-badge status-' + (order.status ? order.status.toLowerCase() : '')"
+            >{{ order.status }}</span
+          >
+        </td>
+        <!-- <td>{{ order.onHold }}</td> -->
+        <!-- <td><img [src]="'assets/showcase/images/demo/order/' + order.image" [alt]="order.name" width="100" class="p-shadow-4" /></td> -->
+        <!-- <td><p-rating [ngModel]="order.rating" [readonly]="true" [cancel]="false"></p-rating></td> -->
+        <td class="p-inputgroup">
+          <div class="p-grid">
+          <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-success p-mr-2 p-col-4"
+            (click)="editOrder(order)"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning p-col-4"
+            (click)="deleteOrder(order)"
+          ></button>
+        </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="summary">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        In total there are {{ orders ? orders.length : 0 }} orders.
+      </div>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
+  [(visible)]="orderDialog"
+  [style]="{ width: '850px' }"
+  header="Order Details"
+  [modal]="true"
+  styleClass="p-fluid"
+>
+  <ng-template pTemplate="content">
+    <!-- <img [src]="'assets/showcase/images/demo/order/' + order.image" [alt]="order.image" class="order-image" *ngIf="order.image"> -->
+    <form [formGroup]="this.formInput">
+      <div class="p-inputgroup">
+
+        <div class="p-field p-col-4">
+          <label for="symbol">Stock </label>
+          <input type="text" pInputText id="symbol" formControlName="symbol" required />
+          <small class="p-invalid" *ngIf="submitted && !order.symbol" >Stock is required.</small>
+        </div>
+
+      <div class="p-field p-col-3">
+        <label for="orderType">Order Type</label>
+        <p-dropdown
+          formControlName="orderType"
+          inputId="orderType"
+          [options]="orderTypes"
+          placeholder="Select"
+        >
+          <ng-template let-option pTemplate="item">
+            <span [class]="'order-badge status-' + option.value">{{ option.label }}</span>
+          </ng-template>
+        </p-dropdown>
+      </div>
+      <div class="p-field p-col-3">
+        <label class="p-mb-3">Transaction Type</label>
+        <div class="p-inputgroup">
+          <div class="p-field-radiobutton p-mr-2">
+            <p-radioButton id="transactionType1" name="transactionType" value="MIS" formControlName="transactionType" ></p-radioButton>
+            <label for="transactionType1">MIS </label>
+          </div>
+          <div class="p-field-radiobutton">
+            <p-radioButton id="transactionType2" name="transactionType" value="CNC" formControlName="transactionType"></p-radioButton>
+            <label for="transactionType2">CNC  </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <div class="p-inputgroup">
+        <div class="p-field p-col">
+          <label for="orderPrice">Price</label>
+          <p-inputNumber
+            id="orderPrice"
+            formControlName="orderPrice"
+            mode="currency"
+            currency="INR"
+            locale="en-IN"
+          ></p-inputNumber>
+        </div>
+        <div class="p-field p-col">
+          <label for="targetPrice">Target Price</label>
+          <div class="p-inputgroup">
+          <p-inputNumber
+            id="targetPrice"
+            formControlName="targetPrice"
+            mode="currency"
+            currency="INR"
+            locale="en-IN"
+          >
+        </p-inputNumber>
+        <p-knob formControlName="targetPercentage"
+        [min]=".90" [max]="100" [size]="60"></p-knob>%
+      </div>
+        </div>
+        <div class="p-field p-col">
+          <label for="stoplossPrice">Stoploss Price</label>
+          <div class="p-inputgroup">
+          <p-inputNumber
+            id="stoplossPrice"
+            formControlName="stoplossPrice"
+            mode="currency"
+            currency="INR"
+            locale="en-IN"
+          ></p-inputNumber>
+          <p-knob formControlName="stoplossPercentage"
+          [min]="0" [max]="-20" [size]="60"></p-knob>%
+        </div>
+        </div>
+      </div>
+
+      <div class="p-inputgroup">
+        <div class="p-field p-col-4">
+          <label for="quantity">Quantity</label>
+          <p-inputNumber id="quantity" formControlName="quantity"></p-inputNumber>
+        </div>
+
+        <div class="p-field p-col-3">
+          <label for="status">Status</label>
+          <p-dropdown
+            formControlName="status"
+            inputId="status"
+            [options]="statuses"
+            placeholder="Select"
+          >
+            <ng-template let-option pTemplate="item">
+              <span [class]="'status-badge status-' + option.value">{{ option.label }}</span>
+            </ng-template>
+          </p-dropdown>
+        </div>
+
+
+      </div>
+      <div *ngIf="order.quantity>0 && order.orderPrice>0">
+        <p-tag severity="warning" class="p-mr-2"> Fund Required : {{order.quantity * order.orderPrice  | currency: "INR" }} </p-tag>
+        <p-tag severity="success" class="p-mr-2"> Reward : {{order.quantity * order.orderPrice * (order.targetPercentage/100)  | currency: "INR" }} </p-tag>
+        <p-tag severity="danger"> Risk : {{order.quantity * order.orderPrice * (order.stoplossPercentage/100)  | currency: "INR" }} </p-tag>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      pRipple
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="hideDialog()"
+    ></button>
+    <button
+      pButton
+      pRipple
+      label="Save"
+      icon="pi pi-check"
+      class="p-button-text"
+      (click)="saveOrder()"
+    ></button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

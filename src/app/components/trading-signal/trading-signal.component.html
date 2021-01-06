@@ -1,0 +1,143 @@
+<p-toast></p-toast>
+
+<div class="card">
+  <p-toolbar styleClass="p-mr-2">
+    <ng-template pTemplate="right">
+      <button
+        pButton
+        pRipple
+        label="New"
+        icon="pi pi-plus"
+        class="p-button-success p-mr-2"
+        (click)="openNew()"
+      ></button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table #dt [value]="tradingSignals" [rows]="10" [paginator]="true"
+          [globalFilterFields]="['stock', 'status']"
+          [(selection)]="selectedTradingSignals" [rowHover]="true" dataKey="id"
+           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [showCurrentPageReport]="true"
+          >
+    <ng-template pTemplate="caption">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        <h5 class="p-m-0">Manage Stock Signal</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+        </span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th pSortableColumn="stock">
+          Stock Name <p-sortIcon field="stock"></p-sortIcon>
+        </th>
+        <th pSortableColumn="trade">
+          Trade <p-sortIcon field="trade"></p-sortIcon>
+        </th>
+        <th pSortableColumn="buyPrice">
+          Price <p-sortIcon field="buyPrice"></p-sortIcon>
+        </th>
+        <th pSortableColumn="stoploss">
+          Stoploss <p-sortIcon field="stoploss"></p-sortIcon>
+        </th>
+        <th pSortableColumn="watchReason">
+          Reason <p-sortIcon field="watchReason"></p-sortIcon>
+        </th>
+        <th pSortableColumn="date">
+          Date <p-sortIcon field="date"></p-sortIcon>
+        </th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-tradingSignal>
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="tradingSignal"></p-tableCheckbox>
+        </td>
+        <td>{{ tradingSignal.stock }}</td>
+        <td>{{ tradingSignal.trade }}</td>
+        <td>{{ tradingSignal.buyPrice }}</td>
+        <td>{{ tradingSignal.stoploss }}</td>
+        <td>{{ tradingSignal.watchReason }}</td>
+        <td>{{ tradingSignal.date }}</td>
+       <td class="p-inputgroup">
+          <div class="p-grid">
+          <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-success p-mr-2 p-col-4"
+            (click)="editTradingSignal(tradingSignal)"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning p-col-4"
+            (click)="deleteTradingSignal(tradingSignal)"
+          ></button>
+        </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="summary">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        In total there are {{ tradingSignals ? tradingSignals.length : 0 }} tradingSignals.
+      </div>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
+  [(visible)]="tradingSignalDialog"
+  [style]="{ width: '850px' }"
+  header="TradingSignal Details"
+  [modal]="true"
+  styleClass="p-fluid"
+>
+  <ng-template pTemplate="content">
+    <form [formGroup]="this.formInput">
+      <div class="p-field p-col-4">
+        <label for="stock">Stock </label>
+        <input type="text" pInputText id="stock" formControlName="stock" required />
+        <small class="p-invalid" *ngIf="submitted && !tradingSignal.stock" >Stock is required.</small>
+      </div>
+      <div class="p-field p-col">
+        <label for="price">Price</label>
+        <p-inputNumber  id="price" formControlName="price" mode="currency"
+                        currency="INR" locale="en-IN"
+          ></p-inputNumber>
+       </div>
+       <div class="p-field p-col">
+        <label for="isCrossAbove">IsCross Above</label>
+        <p-inputSwitch formControlName="isCrossAbove"></p-inputSwitch>
+        </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      pRipple
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="hideDialog()"
+    ></button>
+    <button
+      pButton
+      pRipple
+      label="Save"
+      icon="pi pi-check"
+      class="p-button-text"
+      (click)="saveTradingSignal()"
+    ></button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
