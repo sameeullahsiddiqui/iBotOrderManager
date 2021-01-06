@@ -64,3 +64,18 @@ node_modules/
 
 # dotenv environment variables file
 .env
+dist/iBotMoneyManager/3rdpartylicenses.txt
+dist/iBotMoneyManager/4.17df6e7ade9bd43aa0d8.js
+dist/iBotMoneyManager/color.6441e63a57ccc5105bad.png
+dist/iBotMoneyManager/favicon.ico
+dist/iBotMoneyManager/hue.f8505bd4d6f3e3aa435b.png
+dist/iBotMoneyManager/index.html
+dist/iBotMoneyManager/main.c7ab69e59c7a9d55aef7.js
+dist/iBotMoneyManager/password-meter.eea288d50533d7995ec1.png
+dist/iBotMoneyManager/polyfills.8c151b8375e767ff858f.js
+dist/iBotMoneyManager/primeicons.3a0d4a58da62cf7c55bb.ttf
+dist/iBotMoneyManager/primeicons.c55d94a248721abbd220.svg
+dist/iBotMoneyManager/primeicons.dfbfef2de4bfb34e9722.eot
+dist/iBotMoneyManager/primeicons.e61f3495a7ecd3d571a4.woff
+dist/iBotMoneyManager/runtime.9ba790e54865cb129f26.js
+dist/iBotMoneyManager/styles.0732dbb0a12923f94fb4.css
