@@ -41,7 +41,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { LocalStorageService } from './shared/services/local-storage.service';
 import { HomeComponent } from './components/home/home.component';
 import { ManageComponent } from './components/manage/manage.component';
-import { ReleaseLogComponent } from './components/Releaselog/release-log.component';
+import { ReleaseLogComponent } from './components/release-log/release-log.component';
 @NgModule({
   declarations: [
     AppComponent,

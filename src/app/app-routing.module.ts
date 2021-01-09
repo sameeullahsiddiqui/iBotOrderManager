@@ -7,7 +7,7 @@ import { UserConfigurationComponent } from './components/user-configuration/user
 import { TradingSignalComponent } from './components/trading-signal/trading-signal.component';
 import { HomeComponent } from './components/home/home.component';
 import { ManageComponent } from './components/manage/manage.component';
-import { ReleaseLogComponent } from './components/Releaselog/release-log.component';
+import { ReleaseLogComponent } from './components/release-log/release-log.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent},
