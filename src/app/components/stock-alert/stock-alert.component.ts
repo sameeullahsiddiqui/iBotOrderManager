@@ -49,6 +49,7 @@ export class StockAlertComponent implements OnInit {
   };
 
   private readonly USERIDKEY = 'iBotUserId';
+  isAlertSound: any;
 
   constructor(
     private localStorageService: LocalStorageService,
@@ -83,6 +84,9 @@ export class StockAlertComponent implements OnInit {
     if(this.userName) {
     this.stockAlertsCollection = this.fireStore.collection('Alerts', ref=>ref.orderBy('updateTime','desc'));
     this.stockAlertsCollection.valueChanges({ idField: 'stockAlertId' }).subscribe((res) => {
+      if(this.stockAlerts.length>0)
+          this.playAudio();
+
         this.stockAlerts = res;
       });
     }
@@ -190,4 +194,22 @@ export class StockAlertComponent implements OnInit {
   createId(): string {
     return this.fireStore.createId();
   }
+
+  playAudio(){
+    if(this.isAlertSound) {
+      let audio = new Audio();
+      audio.src = "../../../assets/audit/alert.mp3";
+      audio.load();
+      audio.play();
+    }
+  }
+
+  handleChange(event:any) {
+    this.isAlertSound = event.checked;
+}
+
+openChart(alert:StockAlert) {
+  window.open("https://kite.zerodha.com/chart/ext/tvc/NSE/" + alert.symbol +"/2815745", '_blank');
+}
+
 }

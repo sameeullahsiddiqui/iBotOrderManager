@@ -37,14 +37,15 @@
      -->
     </ng-template>
 
-    <!--
       <ng-template pTemplate="left">
-      <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="p-mr-2 p-d-inline-block"
+        <span>Alert sound :</span>
+        <p-inputSwitch (onChange)="handleChange($event)"></p-inputSwitch>
+
+      <!-- <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="p-mr-2 p-d-inline-block"
       ></p-fileUpload>
       <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"
-      ></button>
+      ></button> -->
     </ng-template>
-     -->
   </p-toolbar>
 
   <p-table #dt [value]="orders" [rows]="10" [paginator]="true"
@@ -94,6 +95,9 @@
         <th pSortableColumn="profit">
           Profit <p-sortIcon field="profit"></p-sortIcon>
         </th>
+        <th pSortableColumn="triggerPrice">
+          Trigger Price <p-sortIcon field="triggerPrice"></p-sortIcon>
+        </th>
         <th pSortableColumn="status">
           Status <p-sortIcon field="status"></p-sortIcon>
         </th>
@@ -114,7 +118,13 @@
           {{ order.orderType }}</td>
           <td [class]=" 'order-badge status-' + (order.status ? order.transactionType.toLowerCase() : '')">
             {{ order.transactionType }}</td>
-          <td>{{ order.symbol }}</td>
+          <td class="p-inputgroup">{{ order.symbol }}
+            <button pButton pRipple type="button"
+            icon="pi pi-chart-bar"
+            class="p-button-rounded p-button-secondary p-button-text"
+            (click)="openChart(order)">
+          </button>
+          </td>
         <td>{{ order.quantity }}</td>
         <td>{{ order.orderPrice | currency: "INR" }}</td>
         <td>{{ order.currentPrice | currency: "INR" }}</td>
@@ -125,11 +135,12 @@
           valueTemplate="{{order.profit}}%"
           [readonly]="true"
           [min]="-20" [max]="20"
-          [size]="50"
+          [size]="40"
           valueColor="{{order.profit < 0 ? 'Red': order.profit > 0 ? 'Green' : 'MediumTurquoise'}}"
           >
         </p-knob>
         </td>
+        <td>{{ order.triggerPrice | currency: "INR" }}</td>
         <td>
           <span
             [class]=" 'order-badge status-' + (order.status ? order.status.toLowerCase() : '')"
@@ -261,6 +272,10 @@
           <p-inputNumber id="quantity" formControlName="quantity"></p-inputNumber>
         </div>
 
+        <div class="p-field p-col-4">
+          <label for="triggerPrice">Trigger Price</label>
+          <p-inputNumber id="triggerPrice" formControlName="triggerPrice"></p-inputNumber>
+        </div>
         <div class="p-field p-col-3">
           <label for="status">Status</label>
           <p-dropdown
@@ -306,3 +321,5 @@
 </p-dialog>
 
 <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+
+<p-terminal welcomeMessage="Welcome to iBot" prompt="iBot$"></p-terminal>

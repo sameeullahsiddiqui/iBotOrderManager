@@ -20,6 +20,7 @@ export class Order {
   brokerOrderId: string;
   onHold: boolean;
   instrumentToken: string;
+  triggerPrice: number;
 
   constructor()
   {
@@ -44,5 +45,6 @@ export class Order {
     this.executionDateTime = new Date();
     this.exchange = 'NSE';
     this.brokerOrderId = '';
+    this.triggerPrice = 0;
   }
 }

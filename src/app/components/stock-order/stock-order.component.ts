@@ -6,9 +6,10 @@ import {
 import { FormControl, FormGroup } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 import { MessageService } from 'primeng/api';
-import { Observable } from 'rxjs';
 import { Order } from 'src/app/shared/models/order';
 import { LocalStorageService } from 'src/app/shared/services/local-storage.service';
+import {TerminalService} from 'primeng/terminal';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-stock-order',
@@ -23,9 +24,11 @@ import { LocalStorageService } from 'src/app/shared/services/local-storage.servi
       }
     `,
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [MessageService, ConfirmationService, TerminalService],
 })
 export class StockOrderComponent implements OnInit {
+
+  subscription: Subscription | undefined;
   orderDialog: boolean = false;
   order: Order = new Order();
   selectedOrders: Order[] = [];
@@ -45,6 +48,7 @@ export class StockOrderComponent implements OnInit {
     symbol: 'symbol',
     quantity: 'quantity',
     orderPrice: 'orderPrice',
+    triggerPrice: 'triggerPrice',
     orderType: 'orderType',
     stoplossPrice: 'stoplossPrice',
     stoplossPercentage: 'stoplossPercentage',
@@ -61,15 +65,22 @@ export class StockOrderComponent implements OnInit {
   };
 
   private readonly USERIDKEY = 'iBotUserId';
+  isAlertSound: boolean = false;
 
   constructor(
     private localStorageService: LocalStorageService,
     private fireStore: AngularFirestore,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private terminalService: TerminalService
   ) {
     this.userName = this.localStorageService.getItem(this.USERIDKEY);
     this.setFormData();
+
+    this.terminalService.commandHandler.subscribe(command => {
+      let response = (command === 'date') ? new Date().toDateString() : 'Unknown command: ' + command;
+      this.terminalService.sendResponse(response);
+  });
   }
 
   private setFormData() {
@@ -83,6 +94,7 @@ export class StockOrderComponent implements OnInit {
       targetPrice: new FormControl(this.order.targetPrice),
       targetPercentage: new FormControl(this.order.targetPercentage),
       transactionType: new FormControl(this.order.transactionType),
+      triggerPrice: new FormControl(this.order.triggerPrice),
       status: new FormControl(this.order.status),
     });
     this.formUserInput = new FormGroup({
@@ -210,6 +222,8 @@ export class StockOrderComponent implements OnInit {
     if(this.userName) {
     this.ordersCollection = this.fireStore.collection('Orders').doc(this.userName).collection('Order', ref=>ref.orderBy('executionDateTime','desc'));
     this.ordersCollection.valueChanges({ idField: 'orderId' }).subscribe((res) => {
+      if(this.orders.length>0)
+            this.playAudio();
         this.orders = res;
         this.orders.forEach(element => {
           element.profit = +parseFloat(element.profit.toString()).toFixed(2);
@@ -295,6 +309,7 @@ export class StockOrderComponent implements OnInit {
       this.order.stoplossPrice = this.formInput.controls[this.properties.stoplossPrice].value;
       this.order.targetPrice = this.formInput.controls[this.properties.targetPrice].value;
       this.order.transactionType = this.formInput.controls[this.properties.transactionType].value;
+      this.order.triggerPrice = this.formInput.controls[this.properties.triggerPrice].value;
       this.order.status = this.formInput.controls[this.properties.status].value;
       this.order.executionDateTime = new Date();
 
@@ -325,6 +340,7 @@ export class StockOrderComponent implements OnInit {
       this.order.stoplossPrice = this.formInput.controls[this.properties.stoplossPrice].value;
       this.order.targetPrice = this.formInput.controls[this.properties.targetPrice].value;
       this.order.transactionType = this.formInput.controls[this.properties.transactionType].value;
+      this.order.triggerPrice = this.formInput.controls[this.properties.triggerPrice].value;
       this.order.status = this.formInput.controls[this.properties.status].value;
       //this.order.status = 'New';
       this.order.executionDateTime = new Date();
@@ -392,4 +408,28 @@ export class StockOrderComponent implements OnInit {
     this.localStorageService.setItem(this.USERIDKEY,this.userName);
     this.getOrders();
   }
+
+  playAudio(){
+    if(this.isAlertSound) {
+      let audio = new Audio();
+      audio.src = "../../../assets/audit/order.mp3";
+      audio.load();
+      audio.play();
+    }
+  }
+
+  handleChange(event:any) {
+    this.isAlertSound = event.checked;
+  }
+
+ openChart(order:Order) {
+      window.open("https://kite.zerodha.com/chart/ext/tvc/NSE/" + order.symbol +"/2815745" + order.instrumentToken, '_blank');
+ }
+
+ ngOnDestroy() {
+  if (this.subscription) {
+      this.subscription.unsubscribe();
+  }
+}
+
 }

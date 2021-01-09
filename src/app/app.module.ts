@@ -18,6 +18,9 @@ import {KnobModule} from 'primeng/knob';
 import { TagModule } from 'primeng/tag';
 import {InputSwitchModule} from 'primeng/inputswitch';
 import {TabMenuModule} from 'primeng/tabmenu';
+import {TabViewModule} from 'primeng/tabview';
+import {TerminalModule} from 'primeng/terminal';
+
 
 import { AppRoutingModule } from './app-routing.module';
 
@@ -37,6 +40,8 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { LocalStorageService } from './shared/services/local-storage.service';
 import { HomeComponent } from './components/home/home.component';
+import { ManageComponent } from './components/manage/manage.component';
+import { ReleaseLogComponent } from './components/Releaselog/release-log.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -45,7 +50,10 @@ import { HomeComponent } from './components/home/home.component';
     UserConfigurationComponent,
     StockAlertComponent,
     TradingSignalComponent,
-    HomeComponent] ,
+    HomeComponent,
+    ManageComponent,
+    ReleaseLogComponent
+    ] ,
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -68,7 +76,9 @@ import { HomeComponent } from './components/home/home.component';
     KnobModule,
     TagModule,
     TabMenuModule,
-    InputSwitchModule
+    InputSwitchModule,
+    TabViewModule,
+    TerminalModule
   ],
   providers: [OrdersService, LocalStorageService],
   bootstrap: [AppComponent]

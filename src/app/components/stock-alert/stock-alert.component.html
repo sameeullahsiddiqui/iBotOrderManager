@@ -12,6 +12,10 @@
         (click)="openNew()"
       ></button>
     </ng-template>
+    <ng-template pTemplate="left">
+      <span>Alert sound :</span>
+      <p-inputSwitch (onChange)="handleChange($event)"></p-inputSwitch>
+    </ng-template>
   </p-toolbar>
 
   <p-table #dt [value]="stockAlerts" [rows]="10" [paginator]="true"
@@ -55,7 +59,13 @@
         </td>
         <td [class]=" 'order-badge status-' + (stockAlert.status ? stockAlert.status.toLowerCase() : '')">
           {{ stockAlert.status }}</td>
-        <td>{{ stockAlert.symbol }}</td>
+        <td class="p-inputgroup">{{ stockAlert.symbol }}
+            <button pButton pRipple type="button"
+            icon="pi pi-chart-bar"
+            class="p-button-rounded p-button-secondary p-button-text"
+            (click)="openChart(stockAlert)">
+          </button>
+        </td>
         <td>{{ stockAlert.price | currency: "INR" }}</td>
         <td>{{ stockAlert.isCrossAbove }}</td>
         <td class="p-inputgroup">
