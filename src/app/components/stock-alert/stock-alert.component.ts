@@ -209,7 +209,7 @@ export class StockAlertComponent implements OnInit {
 }
 
 openChart(alert:StockAlert) {
-  window.open("https://kite.zerodha.com/chart/ext/tvc/NSE/" + alert.symbol +"/2815745", '_blank');
+  window.open("https://in.tradingview.com/chart/?symbol=NSE:" + alert.symbol, '_blank');
 }
 
 }

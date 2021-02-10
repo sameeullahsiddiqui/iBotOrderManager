@@ -1,2 +1,37 @@
-<p-tabMenu [model]="items" [activeItem]="activeItem"></p-tabMenu>
-<router-outlet></router-outlet>
+<!-- <p-tabMenu [model]="items" [activeItem]="activeItem"></p-tabMenu> -->
+<nav class="navbar">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar" >
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">IBotMoneyManager</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+        <li class="active">
+          <a routerLink="/home" routerLinkActive="active">Home</a>
+        </li>
+        <li><a routerLink="/manage">Manage</a></li>
+        <li><a routerLink="/watchlist">Watchlist</a></li>
+        <li><a routerLink="/userConfiguration">Settings</a></li>
+        <li><a routerLink="/releaseLog">ReleaseLog</a></li>
+        <li *ngIf="userName"> <a (click)="signOut()">Log out</a> </li>
+      </ul>
+      </div>
+    </div>
+</nav>
+
+<div class="container">
+  <div class="row">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
+<!-- Footer -->
+<hr color="red" />
+<div class="text-center" style="margin-bottom: 0">
+  <p>iBot Money manager <i class="fa fa-copyright"></i></p>
+</div>

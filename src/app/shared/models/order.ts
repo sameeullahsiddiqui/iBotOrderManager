@@ -19,7 +19,7 @@ export class Order {
   exchange: string;
   brokerOrderId: string;
   onHold: boolean;
-  instrumentToken: string;
+  instrumentToken: number;
   triggerPrice: number;
 
   constructor()
@@ -29,7 +29,7 @@ export class Order {
     this.orderType = 'long';
     this.transactionType = 'MIS';
     this.symbol = '';
-    this.instrumentToken = '';
+    this.instrumentToken = 0;
     this.quantity = 1;
     this.orderPrice = 0;
     this.buyPrice = 0;

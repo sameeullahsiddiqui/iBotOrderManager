@@ -9,5 +9,8 @@ export const environment = {
   messagingSenderId: '399146397852',
   appId: '1:399146397852:web:fc79ed940e46dfc3d9bd59',
   measurementId: 'G-H47ZD6CDS7'
-  }
+},
+apiUrl:'',
+API_URL : 'https://api.kite.trade',
+USERDATA: 'iBotUserData',
 };

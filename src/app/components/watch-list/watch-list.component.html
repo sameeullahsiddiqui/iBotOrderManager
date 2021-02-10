@@ -1,0 +1,164 @@
+<p-toast></p-toast>
+
+<div class="card" *ngIf="userName">
+  <p-toolbar styleClass="p-mr-2">
+    <ng-template pTemplate="right">
+      <button
+        pButton
+        pRipple
+        label="New"
+        icon="pi pi-plus"
+        class="p-button-success p-mr-2"
+        (click)="openNew()"
+      ></button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table #dt [value]="watchLists" [rows]="10" [paginator]="true"
+          [globalFilterFields]="['symbol', 'status']"
+          [(selection)]="selectedWatchLists" [rowHover]="true" dataKey="id"
+           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [showCurrentPageReport]="true"
+          >
+    <ng-template pTemplate="caption">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        <h5 class="p-m-0">Manage Watchlist</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+        </span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th pSortableColumn="status">
+          Status <p-sortIcon field="status"></p-sortIcon>
+        </th>
+        <th pSortableColumn="symbol">
+          Stock Name <p-sortIcon field="symbol"></p-sortIcon>
+        </th>
+        <th pSortableColumn="Price">
+          Price <p-sortIcon field="price"></p-sortIcon>
+        </th>
+        <th pSortableColumn="description">
+          Description <p-sortIcon field="description"></p-sortIcon>
+        </th>
+        <th pSortableColumn="reasonToWatch">
+          Reason To Watch <p-sortIcon field="reasonToWatch"></p-sortIcon>
+        </th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-watchList>
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="watchList"></p-tableCheckbox>
+        </td>
+        <td [class]=" 'watch-badge status-' + (watchList.status ? watchList.status.toLowerCase() : '')">
+          {{ watchList.status }}</td>
+        <td class="p-inputgroup">{{ watchList.symbol }}
+            <button pButton pRipple type="button"
+            icon="pi pi-chart-bar"
+            class="p-button-rounded p-button-secondary p-button-text"
+            (click)="openChart(watchList)">
+          </button>
+        </td>
+        <td>{{ watchList.price | currency: "INR" }}</td>
+        <td>{{ watchList.description }}</td>
+        <td>{{ watchList.reasonToWatch }}</td>
+        <td class="p-inputgroup">
+          <div class="p-grid">
+          <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-success p-mr-2 p-col-4"
+            (click)="editWatchList(watchList)"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning p-col-4"
+            (click)="deleteWatchList(watchList)"
+          ></button>
+        </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="summary">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        In total there are {{ watchLists ? watchLists.length : 0 }} watchLists.
+      </div>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
+  [(visible)]="watchListDialog"
+  [style]="{ width: '850px' }"
+  header="WatchList Details"
+  [modal]="true"
+  styleClass="p-fluid"
+>
+  <ng-template pTemplate="content">
+    <form [formGroup]="this.formInput">
+      <div class="p-field p-col-4">
+        <label for="symbol">Stock </label>
+        <input type="text" pInputText id="symbol" formControlName="symbol" required />
+        <small class="p-invalid" *ngIf="submitted && !watchList.symbol" >Stock is required.</small>
+      </div>
+      <div class="p-field p-col">
+        <label for="price">Price</label>
+        <p-inputNumber  id="price" formControlName="price" mode="currency"
+                        currency="INR" locale="en-IN"
+          ></p-inputNumber>
+       </div>
+       <div class="p-field p-col">
+        <label for="description">Description</label>
+        <textarea [rows]="5" [cols]="30" formControlName="description"></textarea>
+      </div>
+       <div class="p-field p-col">
+        <label for="reasonToWatch">Reason To Watch</label>
+        <textarea [rows]="5" [cols]="30" formControlName="reasonToWatch"></textarea>
+      </div>
+      <div class="p-field p-col">
+        <label class="p-mb-3">Status</label>
+        <div class="p-inputgroup">
+          <div class="p-field-radiobutton p-mr-2">
+            <p-radioButton id="status1" name="status" value="New" formControlName="status" ></p-radioButton>
+            <label for="status1">New</label>
+          </div>
+          <div class="p-field-radiobutton">
+            <p-radioButton id="status2" name="status" value="Completed" formControlName="status"></p-radioButton>
+            <label for="status2">Completed</label>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      pRipple
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="hideDialog()"
+    ></button>
+    <button
+      pButton
+      pRipple
+      label="Save"
+      icon="pi pi-check"
+      class="p-button-text"
+      (click)="saveWatchList()"
+    ></button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

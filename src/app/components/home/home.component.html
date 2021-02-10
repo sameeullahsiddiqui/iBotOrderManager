@@ -1,4 +1,30 @@
+<div class="jumbotron text-center" style="margin-bottom:0">
+  <h1>Welcome to iBotMoneyManager</h1>
+  <p>Intraday order management tool</p>
+</div>
 
-<div class="p-p-4">
-<div class="p-mt-6">Welcome to iBot AI money management and alert system</div>
+
+<div class="container-fluid" *ngIf="!userName">
+  <p>Please enter zerodha user id for order management.</p>
+  <form [formGroup]="this.formUserInput">
+    <div class="form-group">
+      <input type="text"  class="form-control" pInputText id="userName" formControlName="userName" placeholder="Zerodha User id" required />
+      <small id="userNameHelp" class="form-text text-muted">User Name is required.</small>
+    </div>
+    <div class="form-group">
+      <input type="text"  class="form-control" pInputText id="mobile" formControlName="mobile" placeholder="Registered mobile number" required />
+      <small id="mobileHelp" class="form-text text-muted">Mobile is required.</small>
+    </div>
+    <div class="form-group">
+      <button class="btn btn-success" (click)="saveUserId()">Save</button>
+    </div>
+</form>
+</div>
+
+<div class="container-fluid" *ngIf="userName">
+  <p>Get Instrument tokens</p>
+    <div class="form-group">
+      <a href="http://api.kite.trade/instruments">Get Tokens</a>
+      <!-- <button class="btn btn-success" (click)="getInstrumentTokens()">Get Tokens</button> -->
+    </div>
 </div>

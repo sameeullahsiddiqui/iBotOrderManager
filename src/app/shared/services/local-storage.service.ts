@@ -27,4 +27,8 @@ export class LocalStorageService {
   public getItem(name: string): string {
     return this.storage.get(name) || '';
   }
+
+  public clear(): void {
+    this.storage.clear();
+  }
 }

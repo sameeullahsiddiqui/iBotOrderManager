@@ -1,73 +1,128 @@
 <p-toast></p-toast>
-
-<div class="card">
+<h4 class="text-center">User Profile Management</h4>
+<div class="card" styleClass="p-fluid">
   <form [formGroup]="this.formUserInput">
-    <label for="userName">Please enter zerodha user id for order management.</label>
-    <div class="p-field p-col-4">
-      <label for="userName">Zerodha User name:</label>
-      <input type="text" pInputText id="userName" formControlName="userName" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.userName" >Zerodha username is required.</small>
-    </div>
-    <div class="p-field p-col-4">
-      <label for="apiKey">Zerodha API key:</label>
-      <input type="text" pInputText id="apiKey" formControlName="apiKey" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.apiKey" >API key is required.</small>
-    </div>
-    <div class="p-field p-col-4">
-      <label for="apiSecret">Zerodha API Secret:</label>
-      <input type="text" pInputText id="apiSecret" formControlName="apiSecret" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.apiSecret" >API secret is required.</small>
-    </div>
-    <div class="p-field p-col-4">
-      <label for="apiRequestToken">Api Request Token:</label>
-      <input type="text" pInputText id="apiRequestToken" formControlName="apiRequestToken" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.apiRequestToken" >Api Request Token is required.</small>
-    </div>
-    <div class="p-field p-col-4">
-      <label for="apiAccessToken">Api Access Token:</label>
-      <input type="text" pInputText id="apiAccessToken" formControlName="apiAccessToken" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.apiAccessToken" >Api Access Token is required.</small>
-    </div>
-    <div class="p-field p-col-4">
-      <label for="initialProfit">Initial profit target:</label>
-      <input type="text" pInputText id="initialProfit" formControlName="initialProfit" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.initialProfit" >initial Profit is required.</small>
-    </div>
-    <div class="p-field p-col-4">
-      <label for="initialStopLoss">Initial StopLoss:</label>
-      <input type="text" pInputText id="initialStopLoss" formControlName="initialStopLoss" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.initialStopLoss" >Initial StopLoss is required.</small>
-    </div>
-    <div class="p-field p-col-4">
-      <label for="trailingStopLoss">Trailing StopLoss:</label>
-      <input type="text" pInputText id="trailingStopLoss" formControlName="trailingStopLoss" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.trailingStopLoss" >Trailing StopLoss is required.</small>
-    </div>
-    <div class="p-field p-col-4">
-      <label for="pauseMoneyManagement">Pause money management:</label>
-      <input type="text" pInputText id="pauseMoneyManagement" formControlName="pauseMoneyManagement" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.pauseMoneyManagement" >Pause Money Management is required.</small>
-    </div>
-    <div class="p-field p-col-4">
-      <label for="isAutoTradeEnabled">IsAuto Trade Enabled:</label>
-      <input type="text" pInputText id="isAutoTradeEnabled" formControlName="isAutoTradeEnabled" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.isAutoTradeEnabled" >IsAuto Trade Enabled is required.</small>
+    <div class="p-inputgroup">
+      <div class="p-field p-col-4">
+        <label for="userName">Zerodha User name:</label>
+        <input
+          type="text"
+          pInputText
+          id="userName"
+          formControlName="userName"
+          required
+        />
+      </div>
+      <div class="p-field p-col-4">
+        <label for="apiKey">Zerodha API key:</label>
+        <input
+          type="text"
+          pInputText
+          id="apiKey"
+          formControlName="apiKey"
+          required
+        />
+      </div>
+      <div class="p-field p-col-4">
+        <label for="apiSecret">Zerodha API Secret:</label>
+        <input
+          type="text"
+          pInputText
+          id="apiSecret"
+          formControlName="apiSecret"
+          required
+        />
+      </div>
     </div>
 
-    <div class="p-field p-col-4">
-      <label for="autoTradeQuantity">Auto Trade Quantity:</label>
-      <input type="text" pInputText id="autoTradeQuantity" formControlName="autoTradeQuantity" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.autoTradeQuantity" >Auto Trade Quantity is required.</small>
+    <div class="p-inputgroup">
+      <div class="p-field p-col-2">
+        <label for="initialProfit">Initial profit target:</label>
+        <input
+          type="text"
+          pInputText
+          id="initialProfit"
+          formControlName="initialProfit"
+          required
+        />
+      </div>
+
+      <div class="p-field p-col-2">
+        <label for="initialStopLoss">Initial StopLoss:</label>
+        <input
+          type="text"
+          pInputText
+          id="initialStopLoss"
+          formControlName="initialStopLoss"
+          required
+        />
+      </div>
+      <div class="p-field p-col-2">
+        <label for="trailingStopLoss">Trailing StopLoss:</label>
+        <input
+          type="text"
+          pInputText
+          id="trailingStopLoss"
+          formControlName="trailingStopLoss"
+          required
+        />
+      </div>
+      <div class="p-field p-col-2">
+        <label for="AutoTradeQuantity">Auto Trade Quantity:</label>
+        <input
+          type="text"
+          pInputText
+          id="AutoTradeQuantity"
+          formControlName="AutoTradeQuantity"
+          required
+        />
+      </div>
+
+      <div class="p-field p-col-2">
+        <label for="AutoTradeNumber">Auto Trade Number:</label>
+        <input
+          type="text"
+          pInputText
+          id="AutoTradeNumber"
+          formControlName="AutoTradeNumber"
+          required
+        />
+      </div>
     </div>
 
-    <div class="p-field p-col-4">
-      <label for="autoTradeNumber">Auto Trade Number:</label>
-      <input type="text" pInputText id="autoTradeNumber" formControlName="autoTradeNumber" required />
-      <small class="p-invalid" *ngIf="submitted && !userConfiguration.autoTradeNumber" >AutoTradeNumber is required.</small>
+    <div class="p-inputgroup">
+      <div class="p-field p-col-2">
+        <label for="IsAutoTradeEnabled">Is Paper Trading:</label>
+        <p-inputSwitch
+          formControlName="isPaperTradingEnabled"
+          required
+        ></p-inputSwitch>
+      </div>
+
+      <div class="p-field p-col-2">
+        <label for="IsAutoTradeEnabled">IsAuto Trade Enabled:</label>
+        <p-inputSwitch
+          formControlName="IsAutoTradeEnabled"
+          required
+        ></p-inputSwitch>
+      </div>
+
+      <div class="p-field p-col-3">
+        <label for="PauseMoneyManagement">Pause money management:</label>
+        <p-inputSwitch
+          formControlName="PauseMoneyManagement"
+          required
+        ></p-inputSwitch>
+      </div>
+
+      <button
+        pButton
+        pRipple
+        label="Save"
+        icon="pi pi-check"
+        class="btn btn-primary pull-right"
+        (click)="saveUserConfiguration()"
+      ></button>
     </div>
-
-    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
-      (click)="saveUserConfiguration()"></button>
-
-</form>
+  </form>
 </div>

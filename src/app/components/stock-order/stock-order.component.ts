@@ -8,7 +8,7 @@ import { ConfirmationService } from 'primeng/api';
 import { MessageService } from 'primeng/api';
 import { Order } from 'src/app/shared/models/order';
 import { LocalStorageService } from 'src/app/shared/services/local-storage.service';
-import {TerminalService} from 'primeng/terminal';
+import { TerminalService } from 'primeng/terminal';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -27,7 +27,6 @@ import { Subscription } from 'rxjs';
   providers: [MessageService, ConfirmationService, TerminalService],
 })
 export class StockOrderComponent implements OnInit {
-
   subscription: Subscription | undefined;
   orderDialog: boolean = false;
   order: Order = new Order();
@@ -39,8 +38,8 @@ export class StockOrderComponent implements OnInit {
   private ordersCollection!: AngularFirestoreCollection<Order>;
   orders: Order[] = [];
   userName: string = '';
+  isHedging: boolean = false;
 
-  formUserInput: FormGroup = new FormGroup({});
   formInput: FormGroup = new FormGroup({});
   properties = {
     mobileNumber: 'mobileNumber',
@@ -61,7 +60,10 @@ export class StockOrderComponent implements OnInit {
     brokerOrderId: 'brokerOrderId',
     onHold: 'onHold',
     transactionType: 'transactionType',
-    userName:'userName'
+    userName: 'userName',
+    bseInstrumentToken: 'bseInstrumentToken',
+    nseInstrumentToken: 'nseInstrumentToken',
+    hedgeMargin: 'hedgeMargin',
   };
 
   private readonly USERIDKEY = 'iBotUserId';
@@ -77,13 +79,23 @@ export class StockOrderComponent implements OnInit {
     this.userName = this.localStorageService.getItem(this.USERIDKEY);
     this.setFormData();
 
-    this.terminalService.commandHandler.subscribe(command => {
-      let response = (command === 'date') ? new Date().toDateString() : 'Unknown command: ' + command;
+    this.terminalService.commandHandler.subscribe((command) => {
+      let response =
+        command === 'date'
+          ? new Date().toDateString()
+          : 'Unknown command: ' + command;
       this.terminalService.sendResponse(response);
-  });
+    });
   }
 
   private setFormData() {
+    const bseInstrumentToken = this.localStorageService.getItem(
+      'bseInstrumentToken'
+    );
+    const nseInstrumentToken = this.localStorageService.getItem(
+      'nseInstrumentToken'
+    );
+
     this.formInput = new FormGroup({
       orderType: new FormControl(this.order.orderType),
       symbol: new FormControl(this.order.symbol),
@@ -96,9 +108,9 @@ export class StockOrderComponent implements OnInit {
       transactionType: new FormControl(this.order.transactionType),
       triggerPrice: new FormControl(this.order.triggerPrice),
       status: new FormControl(this.order.status),
-    });
-    this.formUserInput = new FormGroup({
-      userName: new FormControl(this.userName),
+      bseInstrumentToken: new FormControl(bseInstrumentToken),
+      nseInstrumentToken: new FormControl(nseInstrumentToken),
+      hedgeMargin: new FormControl(5),
     });
 
     this.setFromChangeEvents();
@@ -120,81 +132,139 @@ export class StockOrderComponent implements OnInit {
       { label: 'LONG', value: 'long' },
       { label: 'SHORT', value: 'short' },
     ];
-
   }
 
   private setFromChangeEvents() {
     this.formInput.controls[this.properties.orderPrice].valueChanges.subscribe(
       (val) => {
-        const orderType = this.formInput.controls[this.properties.orderType].value;
+        const orderType = this.formInput.controls[this.properties.orderType]
+          .value;
         const targetPercentage = 1;
         const stoplossPercentage = -0.5;
-        const targetPrice = this.calculateTargetPrice(val, targetPercentage, orderType);
-        const stoplossPrice = this.calculateStoplossPrice(val, stoplossPercentage, orderType);
+        const targetPrice = this.calculateTargetPrice(
+          val,
+          targetPercentage,
+          orderType
+        );
+        const stoplossPrice = this.calculateStoplossPrice(
+          val,
+          stoplossPercentage,
+          orderType
+        );
 
-        this.formInput.controls[this.properties.targetPrice].setValue(targetPrice);
-        this.formInput.controls[this.properties.stoplossPrice].setValue(stoplossPrice);
-        this.formInput.controls[this.properties.targetPercentage].setValue(targetPercentage);
-        this.formInput.controls[this.properties.stoplossPercentage].setValue(stoplossPercentage);
+        this.formInput.controls[this.properties.targetPrice].setValue(
+          targetPrice
+        );
+        this.formInput.controls[this.properties.stoplossPrice].setValue(
+          stoplossPrice
+        );
+        this.formInput.controls[this.properties.targetPercentage].setValue(
+          targetPercentage
+        );
+        this.formInput.controls[this.properties.stoplossPercentage].setValue(
+          stoplossPercentage
+        );
         this.order.orderPrice = val;
       }
     );
 
-    this.formInput.controls[this.properties.targetPrice].valueChanges.subscribe((val) => {
-      const orderPrice = this.formInput.controls[this.properties.orderPrice].value;
-      const orderType = this.formInput.controls[this.properties.orderType].value;
+    this.formInput.controls[this.properties.targetPrice].valueChanges.subscribe(
+      (val) => {
+        const orderPrice = this.formInput.controls[this.properties.orderPrice]
+          .value;
+        const orderType = this.formInput.controls[this.properties.orderType]
+          .value;
 
-      if (orderPrice && orderPrice > 0) {
-        const targetPercentage = this.calculateTargetPercentage(val, orderPrice, orderType);
-        this.formInput.controls[this.properties.targetPercentage].setValue(targetPercentage);
-        this.order.targetPercentage = targetPercentage;
+        if (orderPrice && orderPrice > 0) {
+          const targetPercentage = this.calculateTargetPercentage(
+            val,
+            orderPrice,
+            orderType
+          );
+          this.formInput.controls[this.properties.targetPercentage].setValue(
+            targetPercentage
+          );
+          this.order.targetPercentage = targetPercentage;
+        }
       }
-    }
     );
 
-    this.formInput.controls[this.properties.stoplossPrice].valueChanges.subscribe((val) => {
+    this.formInput.controls[
+      this.properties.stoplossPrice
+    ].valueChanges.subscribe((val) => {
       const price = this.formInput.controls[this.properties.orderPrice].value;
-      const orderType = this.formInput.controls[this.properties.orderType].value;
+      const orderType = this.formInput.controls[this.properties.orderType]
+        .value;
 
       if (price && price > 0) {
-        const stoplossPercentage = this.calculateStoplossPercentage(val, price, orderType);
-        this.formInput.controls[this.properties.stoplossPercentage].setValue(stoplossPercentage);
+        const stoplossPercentage = this.calculateStoplossPercentage(
+          val,
+          price,
+          orderType
+        );
+        this.formInput.controls[this.properties.stoplossPercentage].setValue(
+          stoplossPercentage
+        );
         this.order.stoplossPercentage = stoplossPercentage;
-
       }
-    }
-    );
+    });
 
     this.formInput.controls[this.properties.quantity].valueChanges.subscribe(
       (val) => {
         const quantity = val;
-        this.order.targetPercentage = this.formInput.controls[this.properties.targetPercentage].value;
-        this.order.stoplossPercentage = this.formInput.controls[this.properties.stoplossPercentage].value;
-        this.order.orderPrice = this.formInput.controls[this.properties.orderPrice].value;
+        this.order.targetPercentage = this.formInput.controls[
+          this.properties.targetPercentage
+        ].value;
+        this.order.stoplossPercentage = this.formInput.controls[
+          this.properties.stoplossPercentage
+        ].value;
+        this.order.orderPrice = this.formInput.controls[
+          this.properties.orderPrice
+        ].value;
         this.order.quantity = quantity;
       }
     );
   }
 
-  private calculateStoplossPercentage(stoplossPrice: number, price: number, orderType: string) {
+  private calculateStoplossPercentage(
+    stoplossPrice: number,
+    price: number,
+    orderType: string
+  ) {
     if (orderType == 'long') {
-      return -+parseFloat((((price - stoplossPrice) / price) * 100).toString()).toFixed(2);
+      return -+parseFloat(
+        (((price - stoplossPrice) / price) * 100).toString()
+      ).toFixed(2);
     } else if (orderType == 'short') {
-      return -+parseFloat((((stoplossPrice - price) / price) * 100).toString()).toFixed(2);
+      return -+parseFloat(
+        (((stoplossPrice - price) / price) * 100).toString()
+      ).toFixed(2);
     }
     return 0;
   }
 
-  private calculateTargetPercentage(targetPrice: number, price: number, orderType: string) {
+  private calculateTargetPercentage(
+    targetPrice: number,
+    price: number,
+    orderType: string
+  ) {
     if (orderType == 'long') {
-      return +parseFloat((((targetPrice - price) / price) * 100).toString()).toFixed(2);
+      return +parseFloat(
+        (((targetPrice - price) / price) * 100).toString()
+      ).toFixed(2);
     } else if (orderType == 'short') {
-      return +parseFloat((((price - targetPrice) / price) * 100).toString()).toFixed(2);
+      return +parseFloat(
+        (((price - targetPrice) / price) * 100).toString()
+      ).toFixed(2);
     }
     return 0;
   }
 
-  private calculateTargetPrice( price: number, targetPercentage: number, orderType: string) {
+  private calculateTargetPrice(
+    price: number,
+    targetPercentage: number,
+    orderType: string
+  ) {
     const perceentage = (price * targetPercentage) / 100;
     if (orderType == 'long') {
       return price + perceentage;
@@ -219,20 +289,25 @@ export class StockOrderComponent implements OnInit {
   }
 
   getOrders() {
-    if(this.userName) {
-    this.ordersCollection = this.fireStore.collection('Orders').doc(this.userName).collection('Order', ref=>ref.orderBy('executionDateTime','desc'));
-    this.ordersCollection.valueChanges({ idField: 'orderId' }).subscribe((res) => {
-      if(this.orders.length>0)
-            this.playAudio();
-        this.orders = res;
-        this.orders.forEach(element => {
-          element.profit = +parseFloat(element.profit.toString()).toFixed(2);
+    if (this.userName) {
+      this.ordersCollection = this.fireStore
+        .collection('Orders')
+        .doc(this.userName)
+        .collection('Order', (ref) => ref.orderBy('executionDateTime', 'desc'));
+      this.ordersCollection
+        .valueChanges({ idField: 'orderId' })
+        .subscribe((res) => {
+          if (this.orders.length > 0) this.playAudio();
+          this.orders = res;
+          this.orders.forEach((element) => {
+            element.profit = +parseFloat(element.profit.toString()).toFixed(2);
+          });
         });
-      });
     }
   }
 
   openNew() {
+    this.isHedging = false;
     this.formInput.reset();
     this.order = new Order();
 
@@ -264,9 +339,14 @@ export class StockOrderComponent implements OnInit {
 
   editOrder(order: Order) {
     this.formInput.reset();
+    this.isHedging = false;
     this.order = { ...order };
-    this.order.targetPercentage = +parseFloat(order.targetPercentage.toString()).toFixed(2);
-    this.order.stoplossPercentage= +parseFloat(order.stoplossPercentage.toString()).toFixed(2);
+    this.order.targetPercentage = +parseFloat(
+      order.targetPercentage.toString()
+    ).toFixed(2);
+    this.order.stoplossPercentage = +parseFloat(
+      order.stoplossPercentage.toString()
+    ).toFixed(2);
     this.setFormData();
     this.orderDialog = true;
   }
@@ -296,27 +376,62 @@ export class StockOrderComponent implements OnInit {
     this.submitted = false;
   }
 
+  setTriggerPrice() {
+    if (this.order.triggerPrice == 0) {
+      this.confirmationService.confirm({
+        message: 'Is it trigger order?',
+        header: 'Confirm',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+          const orderPrice = this.formInput.controls[this.properties.orderPrice].value;
+          this.formInput.controls[this.properties.triggerPrice].setValue(orderPrice);
+          this.saveOrder();
+        },
+        reject: () => {
+          this.saveOrder();
+        },
+      });
+    } else {
+      this.saveOrder();
+    }
+  }
+
   saveOrder() {
     this.submitted = true;
 
     //if (this.order.name.trim()) {
     if (this.order.orderId) {
-      this.order.orderType = this.formInput.controls[this.properties.orderType].value;
+      this.order.orderType = this.formInput.controls[
+        this.properties.orderType
+      ].value;
       this.order.symbol = this.formInput.controls[this.properties.symbol].value;
-      this.order.quantity = this.formInput.controls[this.properties.quantity].value;
-      this.order.orderPrice = this.formInput.controls[this.properties.orderPrice].value;
-      this.order.currentPrice = this.formInput.controls[this.properties.orderPrice].value;
-      this.order.stoplossPrice = this.formInput.controls[this.properties.stoplossPrice].value;
-      this.order.targetPrice = this.formInput.controls[this.properties.targetPrice].value;
-      this.order.transactionType = this.formInput.controls[this.properties.transactionType].value;
-      this.order.triggerPrice = this.formInput.controls[this.properties.triggerPrice].value;
+      this.order.quantity = this.formInput.controls[
+        this.properties.quantity
+      ].value;
+      this.order.orderPrice = this.formInput.controls[
+        this.properties.orderPrice
+      ].value;
+      this.order.currentPrice = this.formInput.controls[
+        this.properties.orderPrice
+      ].value;
+      this.order.stoplossPrice = this.formInput.controls[
+        this.properties.stoplossPrice
+      ].value;
+      this.order.targetPrice = this.formInput.controls[
+        this.properties.targetPrice
+      ].value;
+      this.order.transactionType = this.formInput.controls[
+        this.properties.transactionType
+      ].value;
+      this.order.triggerPrice = this.formInput.controls[
+        this.properties.triggerPrice
+      ].value;
       this.order.status = this.formInput.controls[this.properties.status].value;
       this.order.executionDateTime = new Date();
 
-      if(this.order.orderType == 'long')
-      {
+      if (this.order.orderType == 'long') {
         this.order.buyPrice = this.order.orderPrice;
-      }else {
+      } else {
         this.order.sellPrice = this.order.orderPrice;
       }
 
@@ -332,15 +447,31 @@ export class StockOrderComponent implements OnInit {
       });
     } else {
       this.order.orderId = this.createId();
-      this.order.orderType = this.formInput.controls[this.properties.orderType].value;
+      this.order.orderType = this.formInput.controls[
+        this.properties.orderType
+      ].value;
       this.order.symbol = this.formInput.controls[this.properties.symbol].value;
-      this.order.quantity = this.formInput.controls[this.properties.quantity].value;
-      this.order.orderPrice = this.formInput.controls[this.properties.orderPrice].value;
-      this.order.currentPrice = this.formInput.controls[this.properties.orderPrice].value;
-      this.order.stoplossPrice = this.formInput.controls[this.properties.stoplossPrice].value;
-      this.order.targetPrice = this.formInput.controls[this.properties.targetPrice].value;
-      this.order.transactionType = this.formInput.controls[this.properties.transactionType].value;
-      this.order.triggerPrice = this.formInput.controls[this.properties.triggerPrice].value;
+      this.order.quantity = this.formInput.controls[
+        this.properties.quantity
+      ].value;
+      this.order.orderPrice = this.formInput.controls[
+        this.properties.orderPrice
+      ].value;
+      this.order.currentPrice = this.formInput.controls[
+        this.properties.orderPrice
+      ].value;
+      this.order.stoplossPrice = this.formInput.controls[
+        this.properties.stoplossPrice
+      ].value;
+      this.order.targetPrice = this.formInput.controls[
+        this.properties.targetPrice
+      ].value;
+      this.order.transactionType = this.formInput.controls[
+        this.properties.transactionType
+      ].value;
+      this.order.triggerPrice = this.formInput.controls[
+        this.properties.triggerPrice
+      ].value;
       this.order.status = this.formInput.controls[this.properties.status].value;
       //this.order.status = 'New';
       this.order.executionDateTime = new Date();
@@ -348,6 +479,8 @@ export class StockOrderComponent implements OnInit {
       this.order.exchange = 'NSE';
       this.order.brokerOrderId = '';
       this.order.onHold = false;
+
+      this.hedgingOrder();
 
       //this.order.image = 'order-placeholder.svg';
       //this.orders.push(this.order);
@@ -365,6 +498,62 @@ export class StockOrderComponent implements OnInit {
     this.order = new Order();
     this.formInput.reset();
     //}
+  }
+
+  private hedgingOrder() {
+    if (this.isHedging) {
+      const bseInstrumentToken = this.formInput.controls[
+        this.properties.bseInstrumentToken
+      ].value;
+      const nseInstrumentToken = this.formInput.controls[
+        this.properties.nseInstrumentToken
+      ].value;
+      const hedgeMarginAmount = this.formInput.controls[
+        this.properties.hedgeMargin
+      ].value;
+      this.localStorageService.setItem(
+        'bseInstrumentToken',
+        bseInstrumentToken
+      );
+      this.localStorageService.setItem(
+        'nseInstrumentToken',
+        nseInstrumentToken
+      );
+      const hedgeOrder = { ...this.order };
+
+      this.order.instrumentToken = nseInstrumentToken;
+
+      if (this.order.orderType === 'long') {
+        hedgeOrder.orderType = 'short';
+
+        hedgeOrder.orderPrice = this.formInput.controls[
+          this.properties.orderPrice
+        ].value;
+        hedgeOrder.targetPrice =
+          this.order.orderPrice - (this.order.orderPrice * 2) / 100;
+        hedgeOrder.stoplossPrice = this.order.orderPrice + hedgeMarginAmount;
+        hedgeOrder.triggerPrice = this.order.stoplossPrice;
+      } else if (this.order.orderType === 'short') {
+        hedgeOrder.orderType = 'long';
+
+        hedgeOrder.orderPrice = this.formInput.controls[
+          this.properties.orderPrice
+        ].value;
+        hedgeOrder.targetPrice =
+          this.order.orderPrice + (this.order.orderPrice * 2) / 100;
+        hedgeOrder.stoplossPrice = this.order.orderPrice - hedgeMarginAmount;
+        hedgeOrder.triggerPrice = this.order.stoplossPrice;
+      }
+
+      if (this.order.triggerPrice == 0) {
+        this.order.triggerPrice = this.order.orderPrice;
+      }
+
+      hedgeOrder.orderId = this.createId();
+      hedgeOrder.exchange = 'BSE';
+      hedgeOrder.instrumentToken = bseInstrumentToken;
+      this.ordersCollection.add({ ...hedgeOrder });
+    }
   }
 
   // findIndexById(orderId: string): number {
@@ -403,33 +592,30 @@ export class StockOrderComponent implements OnInit {
   //   return this.item
   // }
 
-  saveUserId(){
-    this.userName = this.formUserInput.controls[this.properties.userName].value;
-    this.localStorageService.setItem(this.USERIDKEY,this.userName);
-    this.getOrders();
-  }
-
-  playAudio(){
-    if(this.isAlertSound) {
+  playAudio() {
+    if (this.isAlertSound) {
       let audio = new Audio();
-      audio.src = "../../../assets/audit/order.mp3";
+      audio.src = '../../../assets/audit/order.mp3';
       audio.load();
       audio.play();
     }
   }
 
-  handleChange(event:any) {
+  handleChange(event: any) {
     this.isAlertSound = event.checked;
   }
 
- openChart(order:Order) {
-      window.open("https://kite.zerodha.com/chart/ext/tvc/NSE/" + order.symbol +"/2815745" + order.instrumentToken, '_blank');
- }
-
- ngOnDestroy() {
-  if (this.subscription) {
-      this.subscription.unsubscribe();
+  openChart(order: Order) {
+    window.open("https://in.tradingview.com/chart/?symbol=NSE:" + order.symbol, '_blank');
   }
-}
 
+  showHedgedControls() {
+    this.isHedging = !this.isHedging;
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
 }

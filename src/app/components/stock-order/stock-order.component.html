@@ -1,17 +1,5 @@
 <p-toast></p-toast>
 
-<div class="card" *ngIf="!userName">
-  <label for="userName">Please enter zerodha user id for order management.</label>
-  <form [formGroup]="this.formUserInput">
-    <div class="p-field p-col-4">
-      <label for="userName">Zerodha User name:</label>
-      <input type="text" pInputText id="userName" formControlName="userName" required />
-      <small class="p-invalid" *ngIf="submitted && !userName" >Zerodha username is required.</small>
-    </div>
-  <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
-      (click)="saveUserId()"></button>
-</form>
-</div>
 
 <div class="card" *ngIf="userName">
   <p-toolbar styleClass="p-mr-2">
@@ -118,12 +106,7 @@
           {{ order.orderType }}</td>
           <td [class]=" 'order-badge status-' + (order.status ? order.transactionType.toLowerCase() : '')">
             {{ order.transactionType }}</td>
-          <td class="p-inputgroup">{{ order.symbol }}
-            <button pButton pRipple type="button"
-            icon="pi pi-chart-bar"
-            class="p-button-rounded p-button-secondary p-button-text"
-            (click)="openChart(order)">
-          </button>
+          <td><div class="p-text-uppercase" style="cursor: pointer;" (click)="openChart(order)"><a>{{ order.symbol }}</a> </div>
           </td>
         <td>{{ order.quantity }}</td>
         <td>{{ order.orderPrice | currency: "INR" }}</td>
@@ -292,6 +275,28 @@
 
 
       </div>
+
+      <div class="p-inputgroup">
+        <div class="p-field p-col-3">
+          <label for="hedging">Hedging</label>
+          <p-inputSwitch (click)="showHedgedControls()"></p-inputSwitch>
+        </div>
+
+        <div class="p-field p-col-3" *ngIf="isHedging">
+          <label for="bseInstrumentToken">BSE Instrument Token</label>
+          <p-inputNumber id="bseInstrumentToken" formControlName="bseInstrumentToken"></p-inputNumber>
+        </div>
+        <div class="p-field p-col-3" *ngIf="isHedging">
+          <label for="nseInstrumentToken">NSE Instrument Token</label>
+          <p-inputNumber id="nseInstrumentToken" formControlName="nseInstrumentToken"></p-inputNumber>
+        </div>
+
+        <div class="p-field p-col-3" *ngIf="isHedging">
+          <label for="hedgeMargin">Hedge Margin Amount:</label>
+          <p-inputNumber id="hedgeMargin" formControlName="hedgeMargin"></p-inputNumber>
+        </div>
+      </div>
+
       <div *ngIf="order.quantity>0 && order.orderPrice>0">
         <p-tag severity="warning" class="p-mr-2"> Fund Required : {{order.quantity * order.orderPrice  | currency: "INR" }} </p-tag>
         <p-tag severity="success" class="p-mr-2"> Reward : {{order.quantity * order.orderPrice * (order.targetPercentage/100)  | currency: "INR" }} </p-tag>
@@ -315,7 +320,7 @@
       label="Save"
       icon="pi pi-check"
       class="p-button-text"
-      (click)="saveOrder()"
+      (click)="setTriggerPrice()"
     ></button>
   </ng-template>
 </p-dialog>
