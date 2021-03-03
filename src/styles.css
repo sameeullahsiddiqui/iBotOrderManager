@@ -664,3 +664,7 @@ body .table thead th {
     display: none;
   }
 }
+
+textarea {
+  height: 4rem;
+}

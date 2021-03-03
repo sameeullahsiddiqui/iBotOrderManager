@@ -163,7 +163,7 @@
 
 <p-dialog
   [(visible)]="orderDialog"
-  [style]="{ width: '850px' }"
+  [style]="{ width: '950px' }"
   header="Order Details"
   [modal]="true"
   styleClass="p-fluid"
@@ -173,7 +173,7 @@
     <form [formGroup]="this.formInput">
       <div class="p-inputgroup">
 
-        <div class="p-field p-col-4">
+        <div class="p-field p-col-5">
           <label for="symbol">Stock </label>
           <input type="text" pInputText id="symbol" formControlName="symbol" required />
           <small class="p-invalid" *ngIf="submitted && !order.symbol" >Stock is required.</small>
@@ -192,7 +192,7 @@
           </ng-template>
         </p-dropdown>
       </div>
-      <div class="p-field p-col-3">
+      <div class="p-field p-col-4">
         <label class="p-mb-3">Transaction Type</label>
         <div class="p-inputgroup">
           <div class="p-field-radiobutton p-mr-2">
@@ -208,7 +208,7 @@
     </div>
 
       <div class="p-inputgroup">
-        <div class="p-field p-col">
+        <div class="p-field p-col-2">
           <label for="orderPrice">Price</label>
           <p-inputNumber
             id="orderPrice"
@@ -218,7 +218,7 @@
             locale="en-IN"
           ></p-inputNumber>
         </div>
-        <div class="p-field p-col">
+        <div class="p-field p-col-4">
           <label for="targetPrice">Target Price</label>
           <div class="p-inputgroup">
           <p-inputNumber
@@ -233,7 +233,7 @@
         [min]=".90" [max]="100" [size]="60"></p-knob>%
       </div>
         </div>
-        <div class="p-field p-col">
+        <div class="p-field p-col-4">
           <label for="stoplossPrice">Stoploss Price</label>
           <div class="p-inputgroup">
           <p-inputNumber
@@ -247,19 +247,20 @@
           [min]="0" [max]="-20" [size]="60"></p-knob>%
         </div>
         </div>
+        <div class="p-field p-col-2">
+          <label for="triggerPrice">Trigger Price</label>
+          <p-inputNumber id="triggerPrice" formControlName="triggerPrice"></p-inputNumber>
+        </div>
+
       </div>
 
       <div class="p-inputgroup">
-        <div class="p-field p-col-4">
+        <div class="p-field p-col-2">
           <label for="quantity">Quantity</label>
           <p-inputNumber id="quantity" formControlName="quantity"></p-inputNumber>
         </div>
 
-        <div class="p-field p-col-4">
-          <label for="triggerPrice">Trigger Price</label>
-          <p-inputNumber id="triggerPrice" formControlName="triggerPrice"></p-inputNumber>
-        </div>
-        <div class="p-field p-col-3">
+        <div class="p-field p-col-2">
           <label for="status">Status</label>
           <p-dropdown
             formControlName="status"
@@ -273,6 +274,25 @@
           </p-dropdown>
         </div>
 
+        <div class="p-col-4">
+          <label for="rule1">Is Above RSI 79 or Below 35?</label>
+          <p-inputSwitch formControlName="isRsiConditionMeet"></p-inputSwitch>
+        </div>
+        <div class="p-col-4">
+          <label for="rule2">Is Double top or Bottom?</label>
+          <p-inputSwitch formControlName="isDoubleTopBottomConditionMeet"></p-inputSwitch>
+        </div>
+        <div class="p-col-4">
+          <label for="rule2">Is High volume red/green candle</label>
+          <p-inputSwitch formControlName="isHighVolumeCandleMeet"></p-inputSwitch>
+        </div>
+      </div>
+
+      <div class="p-inputgroup">
+        <div class="p-field p-col">
+          <label for="tradeReason">Trade Reason</label>
+          <textarea [rows]="1" [cols]="10" formControlName="tradeReason"></textarea>
+        </div>
 
       </div>
 
@@ -327,4 +347,4 @@
 
 <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
 
-<p-terminal welcomeMessage="Welcome to iBot" prompt="iBot$"></p-terminal>
+<!-- <p-terminal welcomeMessage="Welcome to iBot" prompt="iBot$"></p-terminal> -->

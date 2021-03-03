@@ -64,6 +64,10 @@ export class StockOrderComponent implements OnInit {
     bseInstrumentToken: 'bseInstrumentToken',
     nseInstrumentToken: 'nseInstrumentToken',
     hedgeMargin: 'hedgeMargin',
+    isRsiConditionMeet: 'isRsiConditionMeet',
+    isDoubleTopBottomConditionMeet: 'isDoubleTopBottomConditionMeet',
+    isHighVolumeCandleMeet: 'isHighVolumeCandleMeet',
+    tradeReason:'tradeReason'
   };
 
   private readonly USERIDKEY = 'iBotUserId';
@@ -111,6 +115,10 @@ export class StockOrderComponent implements OnInit {
       bseInstrumentToken: new FormControl(bseInstrumentToken),
       nseInstrumentToken: new FormControl(nseInstrumentToken),
       hedgeMargin: new FormControl(5),
+      isRsiConditionMeet: new FormControl(this.order.isRsiConditionMeet),
+      isDoubleTopBottomConditionMeet: new FormControl(this.order.isDoubleTopBottomConditionMeet),
+      isHighVolumeCandleMeet: new FormControl(this.order.isHighVolumeCandleMeet),
+      tradeReason: new FormControl(this.order.tradeReason),
     });
 
     this.setFromChangeEvents();
@@ -401,32 +409,20 @@ export class StockOrderComponent implements OnInit {
 
     //if (this.order.name.trim()) {
     if (this.order.orderId) {
-      this.order.orderType = this.formInput.controls[
-        this.properties.orderType
-      ].value;
+      this.order.orderType = this.formInput.controls[this.properties.orderType].value;
       this.order.symbol = this.formInput.controls[this.properties.symbol].value;
-      this.order.quantity = this.formInput.controls[
-        this.properties.quantity
-      ].value;
-      this.order.orderPrice = this.formInput.controls[
-        this.properties.orderPrice
-      ].value;
-      this.order.currentPrice = this.formInput.controls[
-        this.properties.orderPrice
-      ].value;
-      this.order.stoplossPrice = this.formInput.controls[
-        this.properties.stoplossPrice
-      ].value;
-      this.order.targetPrice = this.formInput.controls[
-        this.properties.targetPrice
-      ].value;
-      this.order.transactionType = this.formInput.controls[
-        this.properties.transactionType
-      ].value;
-      this.order.triggerPrice = this.formInput.controls[
-        this.properties.triggerPrice
-      ].value;
+      this.order.quantity = this.formInput.controls[this.properties.quantity].value;
+      this.order.orderPrice = this.formInput.controls[this.properties.orderPrice].value;
+      this.order.currentPrice = this.formInput.controls[this.properties.orderPrice].value;
+      this.order.stoplossPrice = this.formInput.controls[this.properties.stoplossPrice].value;
+      this.order.targetPrice = this.formInput.controls[this.properties.targetPrice].value;
+      this.order.transactionType = this.formInput.controls[this.properties.transactionType].value;
+      this.order.triggerPrice = this.formInput.controls[this.properties.triggerPrice].value;
       this.order.status = this.formInput.controls[this.properties.status].value;
+      this.order.isRsiConditionMeet = this.formInput.controls[this.properties.isRsiConditionMeet].value;
+      this.order.isDoubleTopBottomConditionMeet = this.formInput.controls[this.properties.isDoubleTopBottomConditionMeet].value;
+      this.order.tradeReason = this.formInput.controls[this.properties.tradeReason].value;
+      this.order.isHighVolumeCandleMeet = this.formInput.controls[this.properties.isHighVolumeCandleMeet].value;
       this.order.executionDateTime = new Date();
 
       if (this.order.orderType == 'long') {
@@ -447,32 +443,21 @@ export class StockOrderComponent implements OnInit {
       });
     } else {
       this.order.orderId = this.createId();
-      this.order.orderType = this.formInput.controls[
-        this.properties.orderType
-      ].value;
+      this.order.orderType = this.formInput.controls[this.properties.orderType].value;
       this.order.symbol = this.formInput.controls[this.properties.symbol].value;
-      this.order.quantity = this.formInput.controls[
-        this.properties.quantity
-      ].value;
-      this.order.orderPrice = this.formInput.controls[
-        this.properties.orderPrice
-      ].value;
-      this.order.currentPrice = this.formInput.controls[
-        this.properties.orderPrice
-      ].value;
-      this.order.stoplossPrice = this.formInput.controls[
-        this.properties.stoplossPrice
-      ].value;
-      this.order.targetPrice = this.formInput.controls[
-        this.properties.targetPrice
-      ].value;
-      this.order.transactionType = this.formInput.controls[
-        this.properties.transactionType
-      ].value;
-      this.order.triggerPrice = this.formInput.controls[
-        this.properties.triggerPrice
-      ].value;
+      this.order.quantity = this.formInput.controls[this.properties.quantity].value;
+      this.order.orderPrice = this.formInput.controls[this.properties.orderPrice].value;
+      this.order.currentPrice = this.formInput.controls[this.properties.orderPrice].value;
+      this.order.stoplossPrice = this.formInput.controls[this.properties.stoplossPrice].value;
+      this.order.targetPrice = this.formInput.controls[this.properties.targetPrice].value;
+      this.order.transactionType = this.formInput.controls[this.properties.transactionType].value;
+      this.order.triggerPrice = this.formInput.controls[this.properties.triggerPrice].value;
       this.order.status = this.formInput.controls[this.properties.status].value;
+      this.order.isRsiConditionMeet = this.formInput.controls[this.properties.isRsiConditionMeet].value;
+      this.order.isDoubleTopBottomConditionMeet = this.formInput.controls[this.properties.isDoubleTopBottomConditionMeet].value;
+      this.order.isHighVolumeCandleMeet = this.formInput.controls[this.properties.isHighVolumeCandleMeet].value;
+      this.order.tradeReason = this.formInput.controls[this.properties.tradeReason].value;
+
       //this.order.status = 'New';
       this.order.executionDateTime = new Date();
       this.order.profit = 0;

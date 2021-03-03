@@ -10,6 +10,7 @@ import { ReleaseLogComponent } from './components/release-log/release-log.compon
 import { AuthGuard } from './shared/guard/auth.guard';
 import { ZerodhaLoginComponent } from './components/zerodha-login/zerodha-login.component';
 import { WatchListComponent } from './components/watch-list/watch-list.component';
+import { MarketDepthComponent } from './components/market-depth/market-depth.component';
 
 const adminsModule = () => import('./admin/admin.module').then(x => x.AdminModule);
 
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'manage', component: ManageComponent, canActivate: [AuthGuard] },
   { path: 'orders', component: StockOrderComponent, canActivate: [AuthGuard] },
   { path: 'alerts', component: StockAlertComponent, canActivate: [AuthGuard] },
+  { path: 'marketdepth', component: MarketDepthComponent, canActivate: [AuthGuard] },
   { path: 'watchlist', component: WatchListComponent, canActivate: [AuthGuard] },
   { path: 'signals', component: TradingSignalComponent, canActivate: [AuthGuard] },
   { path: 'releaseLog', component: ReleaseLogComponent, canActivate: [AuthGuard] },

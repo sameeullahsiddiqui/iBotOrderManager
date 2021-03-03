@@ -1,0 +1,93 @@
+<p-toast></p-toast>
+
+<div class="card" *ngIf="userName">
+  <p-toolbar styleClass="p-mr-2">
+    <ng-template pTemplate="left">
+      <span>Alert sound :</span>
+      <p-inputSwitch (onChange)="handleChange($event)"></p-inputSwitch>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table #dt [value]="marketDepths" [rows]="10" [paginator]="true"
+          [globalFilterFields]="['symbol', 'status']"
+          [(selection)]="selectedMarketDepths" [rowHover]="true" dataKey="id"
+           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [showCurrentPageReport]="true"
+          >
+    <ng-template pTemplate="caption">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        <h5 class="p-m-0">Market Depth</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+        </span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th pSortableColumn="symbol">
+          Stock Name <p-sortIcon field="symbol"></p-sortIcon>
+        </th>
+        <th pSortableColumn="buyers">
+          Buyers <p-sortIcon field="buyers"></p-sortIcon>
+        </th>
+        <th pSortableColumn="sellers">
+          Sellers <p-sortIcon field="sellers"></p-sortIcon>
+        </th>
+        <th pSortableColumn="bullPercentage">
+          Percentage <p-sortIcon field="bullPercentage"></p-sortIcon>
+        </th>
+        <th pSortableColumn="upperCircuit">
+          Upper Circuit <p-sortIcon field="upperCircuit"></p-sortIcon>
+        </th>
+        <th pSortableColumn="margin">
+          Margin <p-sortIcon field="margin"></p-sortIcon>
+        </th>
+        <th pSortableColumn="date">
+          Triggered at <p-sortIcon field="date"></p-sortIcon>
+        </th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-marketDepth>
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="marketDepth"></p-tableCheckbox>
+        </td>
+        <td class="p-inputgroup">{{ marketDepth.symbolCode }}
+            <button pButton pRipple type="button"
+            icon="pi pi-chart-bar"
+            class="p-button-rounded p-button-secondary p-button-text"
+            (click)="openChart(marketDepth)">
+          </button>
+        </td>
+        <td>{{ marketDepth.buyers }}</td>
+        <td>{{ marketDepth.sellers }}</td>
+        <td>{{ marketDepth.bullPercentage }}</td>
+        <td>{{ marketDepth.upperCircuit }}</td>
+        <td>{{ marketDepth.margin }}</td>
+        <td>{{ getFormattedDate(marketDepth.date) | date: 'dd/MMM/yyyy hh:mm'}}</td>
+        <td class="p-inputgroup">
+          <div class="p-grid">
+          <button
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-warning p-col-4"
+            (click)="deleteMarketDepth(marketDepth)"
+          ></button>
+        </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="summary">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        In total there are {{ marketDepths ? marketDepths.length : 0 }} marketDepths.
+      </div>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

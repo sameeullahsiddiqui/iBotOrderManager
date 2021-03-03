@@ -61,6 +61,7 @@ import { JwtInterceptor } from './helpers/jwt.interceptor';
 import { AuthService } from './shared/services/auth.service';
 import { ZerodhaLoginComponent } from './components/zerodha-login/zerodha-login.component';
 import { WatchListComponent } from './components/watch-list/watch-list.component';
+import { MarketDepthComponent } from './components/market-depth/market-depth.component';
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import { WatchListComponent } from './components/watch-list/watch-list.component
     ManageComponent,
     ReleaseLogComponent,
     ZerodhaLoginComponent,
-    WatchListComponent
+    WatchListComponent,
+    MarketDepthComponent
   ],
   imports: [
     BrowserModule,

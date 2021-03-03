@@ -21,6 +21,10 @@ export class Order {
   onHold: boolean;
   instrumentToken: number;
   triggerPrice: number;
+  isRsiConditionMeet: boolean;
+  isDoubleTopBottomConditionMeet: boolean;
+  tradeReason: string;
+  isHighVolumeCandleMeet: boolean;
 
   constructor()
   {
@@ -46,5 +50,9 @@ export class Order {
     this.exchange = 'NSE';
     this.brokerOrderId = '';
     this.triggerPrice = 0;
+    this.isRsiConditionMeet = false;
+    this.isDoubleTopBottomConditionMeet = false;
+    this.isHighVolumeCandleMeet = false;
+    this.tradeReason = '';
   }
 }
