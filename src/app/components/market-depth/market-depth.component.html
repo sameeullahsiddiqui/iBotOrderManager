@@ -9,44 +9,27 @@
   </p-toolbar>
 
   <p-table #dt [value]="marketDepths" [rows]="10" [paginator]="true"
-          [globalFilterFields]="['symbol', 'status']"
-          [(selection)]="selectedMarketDepths" [rowHover]="true" dataKey="id"
-           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+         [globalFilterFields]="['symbol', 'status']"
+         [(selection)]="selectedMarketDepths" [rowHover]="true" dataKey="id"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
           [showCurrentPageReport]="true"
+          selectionMode="multiple"
+          [columns]="cols"
           >
     <ng-template pTemplate="caption">
       <div class="p-d-flex p-ai-center p-jc-between">
-        <h5 class="p-m-0">Market Depth</h5>
-        <span class="p-input-icon-left">
-          <i class="pi pi-search"></i>
-        </span>
+        <button type="button" pButton pRipple icon="pi pi-file-o" (click)="exportCSV()" class="p-mr-2" pTooltip="CSV" tooltipPosition="bottom"></button>
+        <button type="button" pButton pRipple icon="pi pi-times" (click)="clearData()" class="p-mr-2" pTooltip="Clear" tooltipPosition="bottom"></button>
       </div>
+
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
         <th style="width: 3rem">
           <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
         </th>
-        <th pSortableColumn="symbol">
-          Stock Name <p-sortIcon field="symbol"></p-sortIcon>
-        </th>
-        <th pSortableColumn="buyers">
-          Buyers <p-sortIcon field="buyers"></p-sortIcon>
-        </th>
-        <th pSortableColumn="sellers">
-          Sellers <p-sortIcon field="sellers"></p-sortIcon>
-        </th>
-        <th pSortableColumn="bullPercentage">
-          Percentage <p-sortIcon field="bullPercentage"></p-sortIcon>
-        </th>
-        <th pSortableColumn="upperCircuit">
-          Upper Circuit <p-sortIcon field="upperCircuit"></p-sortIcon>
-        </th>
-        <th pSortableColumn="margin">
-          Margin <p-sortIcon field="margin"></p-sortIcon>
-        </th>
-        <th pSortableColumn="date">
-          Triggered at <p-sortIcon field="date"></p-sortIcon>
+        <th *ngFor="let col of cols">
+          {{col.header}}
         </th>
         <th></th>
       </tr>
@@ -69,6 +52,9 @@
         <td>{{ marketDepth.upperCircuit }}</td>
         <td>{{ marketDepth.margin }}</td>
         <td>{{ getFormattedDate(marketDepth.date) | date: 'dd/MMM/yyyy hh:mm'}}</td>
+        <td>{{ marketDepth.signalCount }}</td>
+        <td>{{ marketDepth.upperCircuitCount }}</td>
+        <td>{{ marketDepth.isNifty500 }}</td>
         <td class="p-inputgroup">
           <div class="p-grid">
           <button
