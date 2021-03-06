@@ -4,11 +4,12 @@ import {
   AngularFirestoreCollection,
 } from '@angular/fire/firestore';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, FilterMatchMode } from 'primeng/api';
 import { MessageService } from 'primeng/api';
 import { MarketDepth } from 'src/app/shared/models/market-depth';
 import { LocalStorageService } from 'src/app/shared/services/local-storage.service';
 import * as moment from 'moment-timezone';
+import { PrimeNGConfig } from 'primeng/api';
 
 @Component({
   selector: 'app-market-depth',
@@ -45,62 +46,100 @@ export class MarketDepthComponent implements OnInit {
   properties = {
     date: 'date',
     symbolCode: 'symbolCode',
-    upperCircuit: 'upperCircuit',
-    buyers: 'buyers',
-    sellers: 'sellers',
-    bullPercentage: 'bullPercentage',
     margin: 'margin',
     userName: 'userName',
     isNifty500: 'isNifty500',
     signalCount: 'signalCount',
     upperCircuitCount: 'upperCircuitCount',
+    signalDays: 'signalDays',
+    signal: 'signal',
+    lastSignal: 'lastSignal',
+
+    bseUpperCircuit: 'bseUpperCircuit',
+    bseUpperCircuitReopened: 'bseUpperCircuitReopened',
+    bseBuyers: 'bseBuyers',
+    bseSellers: 'bseSellers',
+    bseBullPercentage: 'bseBullPercentage',
+
+    nseUpperCircuit: 'nseUpperCircuit',
+    nseUpperCircuitReopened: 'nseUpperCircuitReopened',
+    nseBuyers: 'nseBuyers',
+    nseSellers: 'nseSellers',
+    nseBullPercentage: 'nseBullPercentage'
   };
 
   private readonly USERIDKEY = 'iBotUserId';
   isAlertSound: any;
+  multiSortMeta: any = [];
 
   constructor(
     private localStorageService: LocalStorageService,
     private fireStore: AngularFirestore,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private config: PrimeNGConfig
   ) {
+
+    this.multiSortMeta = [];
+    this.multiSortMeta.push({field: 'year', order: 1});
+    this.multiSortMeta.push({field: 'brand', order: -1});
+
     this.userName = this.localStorageService.getItem(this.USERIDKEY);
-    this.setFormData();
   }
 
-  private setFormData() {
-    this.formInput = new FormGroup({
-      date: new FormControl(this.marketDepth.date),
-      userName: new FormControl(this.marketDepth.userName),
-      symbolCode: new FormControl(this.marketDepth.symbolCode),
-      buyers: new FormControl(this.marketDepth.buyers),
-      sellers: new FormControl(this.marketDepth.sellers),
-      bullPercentage: new FormControl(this.marketDepth.bullPercentage),
-      margin: new FormControl(this.marketDepth.margin),
-      upperCircuit: new FormControl(this.marketDepth.upperCircuit),
-      isNifty500: new FormControl(this.marketDepth.isNifty500),
-      signalCount: new FormControl(this.marketDepth.signalCount),
-      upperCircuitCount: new FormControl(this.marketDepth.upperCircuitCount),
-    });
-  }
 
   ngOnInit() {
     this.cols = [
-      { field: this.properties.symbolCode, header: 'Symbl' },
-      { field: this.properties.buyers, header: 'Buyers' },
-      { field: this.properties.sellers, header: 'Sellers' },
-      { field: this.properties.bullPercentage, header: 'Percentage' },
-      { field: this.properties.margin, header: 'Margin' },
-      { field: this.properties.upperCircuit, header: 'Upper Circuit' },
+      { field: this.properties.symbolCode, header: 'Symbol' },
+      { field: this.properties.signal, header: 'Signal' },
+      { field: this.properties.bseBullPercentage, header: '%(BSE)' },
+      { field: this.properties.nseBullPercentage, header: '%(NSE)' },
+      { field: this.properties.bseBuyers, header: 'Buyers(BSE)' },
+      { field: this.properties.bseSellers, header: 'Sellers(BSE)' },
+      { field: this.properties.bseUpperCircuit, header: 'UC(BSE)' },
+      { field: this.properties.bseUpperCircuitReopened, header: 'UC Open(BSE)' },
+
+      { field: this.properties.nseBuyers, header: 'Buyers(NSE)' },
+      { field: this.properties.nseSellers, header: 'Sellers(NSE)' },
+      { field: this.properties.nseUpperCircuit, header: 'UC(NSE)' },
+      { field: this.properties.nseUpperCircuitReopened, header: 'UC Open(NSE)' },
+
       { field: this.properties.date, header: 'Triggered at' },
-      { field: this.properties.signalCount, header: 'Signal Count' },
-      {
-        field: this.properties.upperCircuitCount,
-        header: 'Upper Circuit Count',
-      },
       { field: this.properties.isNifty500, header: 'isNifty500' },
+      { field: this.properties.signalDays, header: 'Signal Days' },
     ];
+
+    this.statuses = [
+      {name: 'Buy', value: 'Buy'},
+      {name: 'Watch', value: 'Watch'},
+      {name: 'Sell', value: 'Sell'}
+   ]
+
+
+    this.config.filterMatchModeOptions = {
+      text: [
+          FilterMatchMode.STARTS_WITH,
+          FilterMatchMode.CONTAINS,
+          FilterMatchMode.NOT_CONTAINS,
+          FilterMatchMode.ENDS_WITH,
+          FilterMatchMode.EQUALS,
+          FilterMatchMode.NOT_EQUALS
+      ],
+      numeric: [
+          FilterMatchMode.EQUALS,
+          FilterMatchMode.NOT_EQUALS,
+          FilterMatchMode.LESS_THAN,
+          FilterMatchMode.LESS_THAN_OR_EQUAL_TO,
+          FilterMatchMode.GREATER_THAN,
+          FilterMatchMode.GREATER_THAN_OR_EQUAL_TO
+      ],
+      date: [
+          FilterMatchMode.IS,
+          FilterMatchMode.IS_NOT,
+          FilterMatchMode.BEFORE,
+          FilterMatchMode.AFTER
+      ]
+    };
 
     this.exportColumns = this.cols.map((col) => ({
       title: col.header,
@@ -118,8 +157,15 @@ export class MarketDepthComponent implements OnInit {
       );
       this.marketDepthsCollection.valueChanges().subscribe((res) => {
         if (this.marketDepths.length > 0) this.playAudio();
-
         this.marketDepths = res;
+        this.marketDepths.forEach(element => {
+          if (element.signal === 'Buy' && element.lastSignal !== 'Buy'){
+            this.playAudio();
+          } else if (element.signal === 'UC(Open)' && element.lastSignal !== 'UC(Open)'){
+            this.playAudio();
+          }
+
+        });
       });
     }
   }
@@ -150,13 +196,6 @@ export class MarketDepthComponent implements OnInit {
     });
   }
 
-  editMarketDepth(marketDepth: MarketDepth) {
-    this.marketDepth = { ...marketDepth };
-    this.marketDepthDialog = true;
-    this.formInput.reset();
-    this.setFormData();
-  }
-
   deleteMarketDepth(marketDepth: MarketDepth) {
     this.confirmationService.confirm({
       message:
@@ -166,7 +205,6 @@ export class MarketDepthComponent implements OnInit {
       accept: () => {
         this.marketDepthsCollection.doc(marketDepth.marketDepthId).delete();
         this.marketDepth = new MarketDepth();
-        this.setFormData();
         this.messageService.add({
           severity: 'success',
           summary: 'Successful',
@@ -286,4 +324,5 @@ export class MarketDepthComponent implements OnInit {
       },
     });
   }
+
 }

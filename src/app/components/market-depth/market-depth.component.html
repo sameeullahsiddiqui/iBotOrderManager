@@ -8,54 +8,84 @@
     </ng-template>
   </p-toolbar>
 
-  <p-table #dt [value]="marketDepths" [rows]="10" [paginator]="true"
-         [globalFilterFields]="['symbol', 'status']"
-         [(selection)]="selectedMarketDepths" [rowHover]="true" dataKey="id"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-          [showCurrentPageReport]="true"
-          selectionMode="multiple"
-          [columns]="cols"
+  <p-table #dt [columns]="cols" [value]="marketDepths" [rows]="10" [paginator]="true"
+               [responsive]="true" [rowsPerPageOptions]="[10, 20, 50, 100]" [resizableColumns]="false"
+               [autoLayout]="false" [scrollable]="true" scrollHeight="36vh"
+               [(selection)]="selectedMarketDepths" [rowHover]="true" dataKey="id"
+               [rowHover]="true"
+               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+               [showCurrentPageReport]="true"
+               selectionMode="multiple"
+               sortMode="multiple"
+               styleClass="p-datatable-customers p-datatable-gridlines"
+               [globalFilterFields]="['symbolCode','signal']"
           >
     <ng-template pTemplate="caption">
       <div class="p-d-flex p-ai-center p-jc-between">
-        <button type="button" pButton pRipple icon="pi pi-file-o" (click)="exportCSV()" class="p-mr-2" pTooltip="CSV" tooltipPosition="bottom"></button>
-        <button type="button" pButton pRipple icon="pi pi-times" (click)="clearData()" class="p-mr-2" pTooltip="Clear" tooltipPosition="bottom"></button>
+        <button type="button" pButton pRipple icon="pi pi-file-o" (click)="exportCSV()" class="p-mr-2" pTooltip="CSV" tooltipPosition="bottom" title="Export"></button>
+        <button type="button" pButton pRipple icon="pi pi-times" (click)="clearData()" class="p-mr-2" pTooltip="Clear" tooltipPosition="bottom" title="Clear Data"></button>
+      </div>
+      <div class="p-d-flex">
+        <span class="p-input-icon-left p-ml-auto">
+                  <input #box pInputText type="text" (input) = "dt.filterGlobal(box.value, 'contains')" placeholder="Search keyword" />
+              </span>
       </div>
 
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th style="width: 3rem">
-          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        <th *ngFor="let col of cols" [pSortableColumn]="col.field">
+          <div class="p-d-flex p-jc-between p-ai-center">
+            {{col.header}}
+            <p-sortIcon [field]="col.field"></p-sortIcon>
+            </div>
         </th>
-        <th *ngFor="let col of cols">
-          {{col.header}}
-        </th>
-        <th></th>
+        <!-- <th></th> -->
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-marketDepth>
       <tr>
-        <td>
+        <!-- <td>
           <p-tableCheckbox [value]="marketDepth"></p-tableCheckbox>
+        </td> -->
+        <td [ngClass]="{'margin': marketDepth.margin > 0, 'nomargin': marketDepth.margin === 0}">
+          {{ marketDepth.symbolCode }}
         </td>
-        <td class="p-inputgroup">{{ marketDepth.symbolCode }}
-            <button pButton pRipple type="button"
-            icon="pi pi-chart-bar"
-            class="p-button-rounded p-button-secondary p-button-text"
-            (click)="openChart(marketDepth)">
-          </button>
+        <td [ngClass]="{'buy': marketDepth.signal === 'Buy', 'sell': marketDepth.signal === 'Sell','watch': marketDepth.signal === 'Watch','uc': marketDepth.signal === 'UC(Open)'}">
+          {{ marketDepth.signal }} ({{marketDepth.signalCount}})
         </td>
-        <td>{{ marketDepth.buyers }}</td>
-        <td>{{ marketDepth.sellers }}</td>
-        <td>{{ marketDepth.bullPercentage }}</td>
-        <td>{{ marketDepth.upperCircuit }}</td>
-        <td>{{ marketDepth.margin }}</td>
+
+        <td [ngClass]="{'alert': marketDepth.bseBullPercentage > 2,'margin': marketDepth.bseBullPercentage > 0, 'nomargin': marketDepth.bseBullPercentage<0}"
+          >{{ marketDepth.bseBullPercentage }}</td>
+        <td [ngClass]="{'alert': marketDepth.nseBullPercentage > 2,'margin': marketDepth.nseBullPercentage > 0, 'nomargin': marketDepth.nseBullPercentage<0}"
+          >{{ marketDepth.nseBullPercentage }}</td>
+        <td>{{ marketDepth.bseBuyers }}</td>
+        <td>{{ marketDepth.bseSellers }}</td>
+        <td class="p-text-center">
+          <i class="pi" [ngClass]="{'true-icon pi-check-circle': marketDepth.bseUpperCircuit, 'false-icon pi-times-circle': !marketDepth.bseUpperCircuit}"></i>
+          ({{marketDepth.upperCircuitCount}})
+        </td>
+        <td class="p-text-center">
+          <i class="pi" [ngClass]="{'true-icon pi-check-circle': marketDepth.bseUpperCircuitReopened, 'false-icon pi-times-circle': !marketDepth.bseUpperCircuitReopened}"></i>
+        </td>
+
+        <td>{{ marketDepth.nseBuyers }}</td>
+        <td>{{ marketDepth.nseSellers }}</td>
+        <td class="p-text-center">
+          <i class="pi" [ngClass]="{'true-icon pi-check-circle': marketDepth.nseUpperCircuit, 'false-icon pi-times-circle': !marketDepth.nseUpperCircuit}"></i>
+          ({{marketDepth.upperCircuitCount}})
+        </td>
+        <td class="p-text-center">
+          <i class="pi" [ngClass]="{'true-icon pi-check-circle': marketDepth.nseUpperCircuitReopened, 'false-icon pi-times-circle': !marketDepth.nseUpperCircuitReopened}"></i>
+        </td>
+
         <td>{{ getFormattedDate(marketDepth.date) | date: 'dd/MMM/yyyy hh:mm'}}</td>
-        <td>{{ marketDepth.signalCount }}</td>
-        <td>{{ marketDepth.upperCircuitCount }}</td>
-        <td>{{ marketDepth.isNifty500 }}</td>
-        <td class="p-inputgroup">
+        <td class="p-text-center">
+          <i class="pi" [ngClass]="{'true-icon pi-check-circle': marketDepth.isNifty500, 'false-icon pi-times-circle': !marketDepth.isNifty500}"></i>
+        </td>
+
+        <td>{{ marketDepth.signalDays }}</td>
+        <!-- <td class="p-inputgroup">
           <div class="p-grid">
           <button
             pButton
@@ -65,9 +95,16 @@
             (click)="deleteMarketDepth(marketDepth)"
           ></button>
         </div>
-        </td>
+        </td> -->
       </tr>
     </ng-template>
+    <ng-template pTemplate="emptymessage" let-columns>
+      <tr>
+          <td [attr.colspan]="columns.length">
+              No records found
+          </td>
+      </tr>
+  </ng-template>
     <ng-template pTemplate="summary">
       <div class="p-d-flex p-ai-center p-jc-between">
         In total there are {{ marketDepths ? marketDepths.length : 0 }} marketDepths.
