@@ -3,7 +3,7 @@ import {
   AngularFirestore,
   AngularFirestoreCollection,
 } from '@angular/fire/firestore';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { ConfirmationService, FilterMatchMode } from 'primeng/api';
 import { MessageService } from 'primeng/api';
 import { MarketDepth } from 'src/app/shared/models/market-depth';
@@ -306,12 +306,17 @@ export class MarketDepthComponent implements OnInit {
   }
 
   clearData() {
+
     this.confirmationService.confirm({
       message: 'Are you sure you want to clear market depth data?',
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.marketDepths.forEach((item) => {
+
+        this.marketDepths.forEach(async (item: MarketDepth) => {
+          if(item.signalCount === 1) {
+            this.updateBullishStockDoc(item.symbolCode, item.signalDays);
+          }
           this.marketDepthsCollection.doc(item.marketDepthId).delete();
         });
         this.selectedMarketDepths = [];
@@ -323,6 +328,21 @@ export class MarketDepthComponent implements OnInit {
         });
       },
     });
+  }
+
+  updateBullishStockDoc(_id: string, _value: number) {
+    let doc = this.fireStore.collection('BullishStockSignals', ref => ref.where('symbol', '==', _id));
+    const valSubscription = doc.valueChanges().subscribe((res: any) => {
+      if (res.length === 0) {
+        this.fireStore.collection('BullishStockSignals').doc(_id).set({symbol: _id, signalDays:1 }, { merge: true });
+        valSubscription.unsubscribe();
+      } else {
+            this.fireStore.collection('BullishStockSignals').doc(_id).set({signalDays: res[0].signalDays+1 }, { merge: true });
+            valSubscription.unsubscribe();
+          }
+    });
+
+
   }
 
 }
